@@ -1,6 +1,5 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -17,12 +16,12 @@ public class Role {
     private ERole name;
 
     @OneToMany(
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        mappedBy = "role",
-        fetch=FetchType.EAGER
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            mappedBy = "role"
     )
-    private List<Role_Right> rights;
+    private List<Role_Right> roles;
+
 
     public Role() {
 
@@ -48,11 +47,4 @@ public class Role {
         this.name = name;
     }
 
-    public List<Role_Right> getRights() {
-        return rights;
-    }
-
-    public void setRights(List<Role_Right> rights) {
-        this.rights = rights;
-    }
 }

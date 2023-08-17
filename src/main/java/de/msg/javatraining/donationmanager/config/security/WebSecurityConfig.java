@@ -33,9 +33,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/auth/**", "/app/test/**", "/**", "/users/**","/donator/**", "**").permitAll() //these requests are allowed
+                .authorizeHttpRequests(request -> request.requestMatchers("/auth/**", "/app/test/**", "/user/**", "/campaign/**").permitAll() //these requests are allowed
                         .anyRequest().authenticated()) //any other request must be authenticated
-
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS)) // we don't want sessions
                 //TODO: we need a filter before UsernamePasswordAuthenticationFilter.class
                 .authenticationProvider(authenticationProvider()).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

@@ -30,9 +30,17 @@ public class Campaign {
             mappedBy = "campaign",
             fetch = FetchType.EAGER
     )
+
     private List<Donation> donationList;
 
     public Campaign() {
+    }
+
+    public Campaign(Long id, @NonNull String purpose, @NonNull String name, List<Donation> donationList) {
+        this.id = id;
+        this.purpose = purpose;
+        this.name = name;
+        this.donationList = donationList;
     }
 
     public Long getId() {

@@ -7,15 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class JwtUtils {
   private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-
-  public List<String> revokedTokens = new ArrayList<>();
 
   @Value("${security.jwtSecret}")
   private String jwtSecret;
@@ -56,17 +52,4 @@ public class JwtUtils {
     return false;
   }
 
-//  public JwtBuilder invalidateToken (String username) {
-//    return Jwts.builder().setSubject(username).setIssuedAt(new Date())
-//            .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs));
-//  }
-
-  public void revokeToken(String token) {
-    revokedTokens.add(token);
-  }
-
-  public boolean isTokenRevoked(String token) {
-    return revokedTokens.contains(token);
-  }
 }
-

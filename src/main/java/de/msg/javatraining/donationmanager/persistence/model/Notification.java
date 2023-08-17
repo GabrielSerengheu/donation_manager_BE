@@ -20,40 +20,7 @@ public class Notification {
     @Column(name="isRead")
     private boolean isRead;
 
-//    @ManyToOne(fetch=FetchType.LAZY)
-////    @JoinColumn(name="receiver_id")
-////    private User notificationReceiver;
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public LocalDate getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDate createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public boolean isRead() {
-        return isRead;
-    }
-
-    public void setRead(boolean read) {
-        isRead = read;
-    }
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="receiver_id")
+    private User notificationReceiver;
 }
