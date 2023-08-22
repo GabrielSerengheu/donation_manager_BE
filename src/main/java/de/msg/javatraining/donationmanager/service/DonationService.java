@@ -3,7 +3,6 @@ package de.msg.javatraining.donationmanager.service;
 import de.msg.javatraining.donationmanager.config.security.JwtUtils;
 import de.msg.javatraining.donationmanager.exception.DonationNotFoundException;
 import de.msg.javatraining.donationmanager.persistence.model.Donation;
-import de.msg.javatraining.donationmanager.persistence.model.Donator;
 import de.msg.javatraining.donationmanager.persistence.model.User;
 import de.msg.javatraining.donationmanager.persistence.repository.DonationRepositoryJPA;
 import de.msg.javatraining.donationmanager.persistence.repository.UserRepositoryInterface;
@@ -55,31 +54,23 @@ public class DonationService {
         }
     }
 
-//    public void approveDonation(HttpServletRequest request, Donation donation) {
-//
-//        String jwt = parseJwt(request);
-//        String username = jwtUtils.getUserNameFromJwtToken(jwt);
-//
-//        Optional<User> createdByUser = userService.findUserByUsername(username);
-//
-//       donation.setApproved(true);
-//       donation.setApprovedBy(createdByUser);
-//       donation.setApproveDate(LocalDate.now());
-//       donationRepositoryJPA.save(donation);
-//    }
-
     public void approveDonation(HttpServletRequest request, Long donationId) throws Exception {
         String jwt = parseJwt(request);
         String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
-        User approvedByUser = userService.findUserByUsername(username)
-                .orElseThrow(() -> new ChangeSetPersister.NotFoundException());
+        User approvedByUser = userService.findUserByUsername(username);
+
+        if (approvedByUser == null) {
+            throw new ChangeSetPersister.NotFoundException();
+        }
+
         Donation donation = findById(donationId);
 
-        if (Objects.equals(approvedByUser.getId(), donation.getCreatedBy().getId())){
-            throw new Exception("Donations can't be approved by the user who created them");
-        }
         if (donation != null) {
+            if (Objects.equals(approvedByUser.getId(), donation.getCreatedBy().getId())) {
+                throw new Exception("Donations can't be approved by the user who created them");
+            }
+
             donation.setApproved(true);
             donation.setApprovedBy(approvedByUser);
             donation.setApproveDate(LocalDate.now());
@@ -89,6 +80,7 @@ public class DonationService {
             throw new ChangeSetPersister.NotFoundException();
         }
     }
+
 
 
     public String parseJwt(HttpServletRequest request) {
