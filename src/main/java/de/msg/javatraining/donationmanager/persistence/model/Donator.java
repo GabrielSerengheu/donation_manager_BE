@@ -1,5 +1,7 @@
 package de.msg.javatraining.donationmanager.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.NonNull;
@@ -26,12 +28,6 @@ public class Donator {
 
     @Column(name="maidenname")
     private String maidenName;
-
-    @OneToMany(
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            mappedBy = "donator"
-    )
-    private List<Donation> donationList;
 
     @Column(name="isactive")
     private boolean isActive;
@@ -76,14 +72,6 @@ public class Donator {
 
     public void setLastName(@NotBlank String lastName) {
         this.lastName = lastName;
-    }
-
-    public List<Donation> getDonationList() {
-        return donationList;
-    }
-
-    public void setDonationList(List<Donation> donationList) {
-        this.donationList = donationList;
     }
 
     public boolean isActive() {

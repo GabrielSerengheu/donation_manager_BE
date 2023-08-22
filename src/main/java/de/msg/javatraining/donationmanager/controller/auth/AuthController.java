@@ -57,82 +57,6 @@ public class AuthController {
 
   private int loginCounter = 0;
 
-
-//  @PostMapping("/login")
-//  public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-//    try {
-//      Authentication authentication = authenticationManager
-//              .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-//
-//      SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//      UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//
-//      System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
-//      String jwt = jwtUtils.generateJwtToken(userDetails);
-//
-//      System.out.println("Token:" + jwt);
-//
-//      List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-//              .collect(Collectors.toList());
-//
-//      return ResponseEntity.ok(new SignInResponse(jwt, userDetails.getId(),
-//              userDetails.getUsername(), userDetails.getEmail(), userDetails.getLoginCount(), roles));
-//    }
-//    catch (Exception e){
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
-//    }
-//  }
-
-//  @PostMapping("/login")
-//  public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-//    UserDetailsImpl userDetails = null;
-//    UserDetailsImpl storedUserDetails = null; // Store the userDetails
-//
-//    Authentication authentication = null;
-//    try {
-//      authentication = authenticationManager.authenticate(
-//              new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-//      );
-//
-//      SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//      userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//      storedUserDetails = userDetails; // Store userDetails
-//      System.out.println(storedUserDetails);
-//
-//      // Return the response for successful authentication
-//      String jwt = jwtUtils.generateJwtToken(userDetails);
-//      System.out.println("Token:" + jwt);
-//
-//      List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-//              .collect(Collectors.toList());
-//
-//      // Reset the loginCounter on successful login
-//      loginCounter = 0;
-//
-//      return ResponseEntity.ok(new SignInResponse(jwt, userDetails.getId(),
-//              userDetails.getUsername(), userDetails.getEmail(), userDetails.getLoginCount(), roles));
-//    } catch (Exception e) {
-//      loginCounter++;
-//      System.out.println("Login counter: " + loginCounter);
-//
-//      if (loginCounter >= 5 && storedUserDetails != null) {
-//        UserWithIdDTO userUpdateDTO = new UserWithIdDTO();
-//        System.out.println(userUpdateDTO);
-//        userUpdateDTO.setActive(false);
-//
-//        System.out.println(storedUserDetails.getId());
-//        System.out.println(storedUserDetails.getId());
-//        userService.updateUser(storedUserDetails.getId(), userUpdateDTO);
-//
-//        System.out.println("User deactivated");
-//      }
-//
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
-//    }
-//  }
-
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
     try {
@@ -145,6 +69,16 @@ public class AuthController {
 
       System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
       String jwt = jwtUtils.generateJwtToken(userDetails);
+    User user = userService.findUserByUsername(userDetails.getUsername());
+
+    if (userDetails.getLoginCount() == -1) {
+      return ResponseEntity.status(HttpStatus.OK)
+              .body("{\"message\": \"Password change required\"}");
+    }
+
+
+    System.out.println(userDetails.getUsername() + " " + userDetails.getEmail());
+    String jwt = jwtUtils.generateJwtToken(userDetails, user);
 
       System.out.println("Token:" + jwt);
 
@@ -180,6 +114,10 @@ public class AuthController {
       User user = userService.findUserByUsername(username);
 
       if (user != null) {
+      User optionalUser = userService.findUserByUsername(username);
+
+      if (optionalUser != null) {
+        User user = optionalUser;
         String newPassword = requestChangePassword.getNewPassword();
         userService.changeUserPassword(user.getId(), newPassword);
         return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Password changed successfully\"}");
@@ -201,6 +139,10 @@ public class AuthController {
       User user = userService.findUserByUsername(username);
 
       if (user != null) {
+      User optionalUser = userService.findUserByUsername(username);
+
+      if (optionalUser != null) {
+        User user = optionalUser;
         int newLoginCount = requestLogincountUpdate.getNewLoginCount();
         userService.updateLoginCount(user.getId(), newLoginCount);
         return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Login count updated successfully\"}");
@@ -213,6 +155,12 @@ public class AuthController {
   }
 
 
+
+  @GetMapping("/get-username")
+  public ResponseEntity<String> getUsernameFromToken(@RequestParam String token) {
+    String username = jwtUtils.getUserNameFromJwtToken(token);
+    return ResponseEntity.ok(username);
+  }
 
   @PostMapping("/logout")
   public ResponseEntity<String> logout(@RequestHeader("Authorization") String authorizationHeader) {
@@ -230,13 +178,5 @@ public class AuthController {
     System.out.println(jwtUtils.revokedTokens);
     return ResponseEntity.ok("{\"message\": \"Logged out successfully\"}");
   }
-
-  @GetMapping("/get-username")
-  public String getUsernameFromToken(@RequestParam String token) {
-    String username = jwtUtils.getUserNameFromJwtToken(token);
-    return username;
-  }
-
-
 
 }

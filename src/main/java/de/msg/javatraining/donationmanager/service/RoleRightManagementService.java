@@ -55,4 +55,8 @@ public class RoleRightManagementService {
     public List<Role_Right> findAllRoleRights() {
         return roleRightRepo.findAll();
     }
+
+    public Role updateRole(Role role) {
+        return roleRepo.saveRole(role);
+    }
 }
